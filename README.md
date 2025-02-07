@@ -2,7 +2,7 @@
 
 ## Project info
 
-**URL**: https://lovable.dev/projects/1a3dae5a-f460-4801-8146-c44345f0dbd5
+**URL**: https://lovable.dev/projects/f7d78c3b-e2d6-4e39-a570-508fcd583f74
 
 ## How can I edit this code?
 
@@ -10,7 +10,7 @@ There are several ways of editing your application.
 
 **Use Lovable**
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/1a3dae5a-f460-4801-8146-c44345f0dbd5) and start prompting.
+Simply visit the [Lovable Project](https://lovable.dev/projects/f7d78c3b-e2d6-4e39-a570-508fcd583f74) and start prompting.
 
 Changes made via Lovable will be committed automatically to this repo.
 
@@ -62,11 +62,8 @@ This project is built with .
 
 ## How can I deploy this project?
 
-Simply open [Lovable](https://lovable.dev/projects/1a3dae5a-f460-4801-8146-c44345f0dbd5) and click on Share -> Publish.
+Simply open [Lovable](https://lovable.dev/projects/f7d78c3b-e2d6-4e39-a570-508fcd583f74) and click on Share -> Publish.
 
 ## I want to use a custom domain - is that possible?
 
 We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
-# GetMyFirstInvestor
-# GetMyFirstInvestor
-# GetMyFirstInvestor

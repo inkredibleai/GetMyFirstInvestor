@@ -1,120 +1,94 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 
-const Auth = () => {
-  const [isLogin, setIsLogin] = useState(true);
-  const [isAdminLogin, setIsAdminLogin] = useState(false);
-  const [email, setEmail] = useState("");
+export default function Auth() {
+  const [email, setEmail] = useState(""); 
   const [password, setPassword] = useState("");
-  const [fullName, setFullName] = useState("");
-  const [userType, setUserType] = useState<"founder" | "investor">("founder");
   const [loading, setLoading] = useState(false);
+  const [isSignup, setIsSignup] = useState(false); // State to toggle between login and signup
+  const [confirmPassword, setConfirmPassword] = useState(""); // State for confirm password
+  const [userType, setUserType] = useState("admin"); // Add state for user type
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleAuth = async (e: React.FormEvent) => {
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_IN') {
+        navigate('/dashboard');  // Changed from '/' to '/dashboard'
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
+
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-
+    
     try {
-      if (isLogin) {
-        // Special handling for admin login
-        if (isAdminLogin) {
-          if (email === "admin@fundmystartup.com" && password === "1234567") {
-            // First check if admin exists in profiles table
-            const { data: adminProfiles, error: profileError } = await supabase
-              .from("profiles")
-              .select("id")
-              .eq("email", "admin@fundmystartup.com");
+      const { data: { user }, error } = await supabase.auth.signUp({
+        email,
+        password,
+      });
 
-            if (profileError) throw profileError;
+      if (error) throw error;
 
-            // If admin doesn't exist in profiles, we need to create it
-            if (!adminProfiles || adminProfiles.length === 0) {
-              // Create admin account
-              const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-                email,
-                password,
-                options: {
-                  data: {
-                    full_name: "Admin",
-                    user_type: "admin",
-                  },
-                },
-              });
+      // Set the user's role as founder in the users table
+      if (user) {
+        await supabase.from('users').insert([{ 
+          user_id: user.id,
+          email, 
+          role: 'founder' 
+        }]);
+      }
 
-              if (signUpError) throw signUpError;
+      toast({
+        title: "Success",
+        description: "Signup successful! Please check your email for confirmation.",
+      });
+      
+      setIsSignup(false);
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
-              // Wait for the trigger to create the profile
-              await new Promise(resolve => setTimeout(resolve, 2000));
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    
+    try {
+      const { data: { user }, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-              // Create admin role if user was created
-              if (signUpData.user) {
-                const { error: adminRoleError } = await supabase
-                  .from("admin_roles")
-                  .insert([{ 
-                    user_id: signUpData.user.id,
-                    role: "admin"
-                  }]);
+      if (error) throw error;
+      
+      // Check user role in the users table
+      const { data: userData, error: userError } = await supabase
+        .from('users')
+        .select('role')
+        .eq('user_id', user.id)  // Use user.id directly from the signIn response
+        .single();
 
-                if (adminRoleError) throw adminRoleError;
-              }
-            }
+      if (userError) throw userError;
 
-            // Now try to sign in
-            const { error: signInError } = await supabase.auth.signInWithPassword({
-              email,
-              password,
-            });
-
-            if (signInError) throw signInError;
-
-            navigate("/admin");
-            toast({
-              title: "Welcome Admin",
-              description: "You have successfully logged in.",
-            });
-          } else {
-            throw new Error("Invalid admin credentials");
-          }
-        } else {
-          // Regular user login
-          const { error } = await supabase.auth.signInWithPassword({
-            email,
-            password,
-          });
-          if (error) throw error;
-          navigate("/dashboard");
-          toast({
-            title: "Welcome back!",
-            description: "You have successfully logged in.",
-          });
-        }
+      // Redirect based on role
+      if (userData && userData.role === 'founder') {
+        navigate("/founder-dashboard");
       } else {
-        // Regular user signup
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: {
-              full_name: fullName,
-              user_type: userType,
-            },
-          },
-        });
-        if (error) throw error;
-        toast({
-          title: "Success!",
-          description: "Please check your email to verify your account.",
-        });
+        navigate("/dashboard");
       }
     } catch (error: any) {
       toast({
@@ -128,98 +102,65 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-secondary to-white p-4">
-      <Card className="w-full max-w-md p-8">
-        <h2 className="text-2xl font-bold text-center mb-6">
-          {isLogin ? (isAdminLogin ? "Admin Login" : "Welcome Back") : "Create Account"}
-        </h2>
-        <form onSubmit={handleAuth} className="space-y-4">
-          <div>
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              disabled={loading}
-            />
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-xl shadow-lg">
+        <div>
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            {isSignup ? "Founder Sign Up" : "Sign In"}
+          </h2>
+        </div>
+        <form className="mt-8 space-y-6" onSubmit={isSignup ? handleSignup : handleLogin}>
+          <div className="space-y-4">
+            <div>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                required
+                placeholder="Email address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+            <div>
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                autoComplete="current-password"
+                required
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
           </div>
-          <div>
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
+
+          <div className="flex justify-between">
+            <Button
+              type="submit"
+              className="w-full"
               disabled={loading}
-            />
+            >
+              {loading ? "Processing..." : (isSignup ? "Sign up" : "Sign in")}
+            </Button>
           </div>
-          {!isLogin && (
-            <>
-              <div>
-                <Label htmlFor="fullName">Full Name</Label>
-                <Input
-                  id="fullName"
-                  type="text"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  required
-                  disabled={loading}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>I am a</Label>
-                <RadioGroup
-                  value={userType}
-                  onValueChange={(value: "founder" | "investor") =>
-                    setUserType(value)
-                  }
-                  className="flex gap-4"
-                >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="founder" id="founder" disabled={loading} />
-                    <Label htmlFor="founder">Startup Founder</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="investor" id="investor" disabled={loading} />
-                    <Label htmlFor="investor">Investor</Label>
-                  </div>
-                </RadioGroup>
-              </div>
-            </>
-          )}
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Loading...
-              </>
-            ) : isLogin ? (
-              isAdminLogin ? "Admin Sign In" : "Sign In"
-            ) : (
-              "Create Account"
-            )}
-          </Button>
+
+          {/* Add toggle button for signup/signin */}
+          <div className="text-center">
+            <button
+              type="button"
+              onClick={() => setIsSignup(!isSignup)}
+              className="text-sm text-blue-600 hover:text-blue-800"
+            >
+              {isSignup 
+                ? "Already have an account? Sign in" 
+                : "New founder? Sign up"}
+            </button>
+          </div>
         </form>
-        <p className="text-center mt-4">
-          {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
-          <Button
-            variant="link"
-            className="p-0"
-            onClick={() => {
-              setIsLogin(!isLogin);
-              setIsAdminLogin(false);
-            }}
-            disabled={loading}
-          >
-            {isLogin ? "Sign Up" : "Sign In"}
-          </Button>
-        </p>
-      </Card>
+      </div>
     </div>
   );
-};
-
-export default Auth;
+}

@@ -9,89 +9,56 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      admin_users: {
-        Row: {
-          id: string
-          email: string
-          full_name: string | null
-          phone_number: string | null
-          department: string | null
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id: string
-          email: string
-          full_name?: string | null
-          phone_number?: string | null
-          department?: string | null
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          email?: string
-          full_name?: string | null
-          phone_number?: string | null
-          department?: string | null
-          created_at?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      admin_roles: {
-        Row: {
-          created_at: string
-          id: string
-          role: Database["public"]["Enums"]["admin_role"]
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          role?: Database["public"]["Enums"]["admin_role"]
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          role?: Database["public"]["Enums"]["admin_role"]
-          user_id?: string
-        }
-        Relationships: []
-      }
       investors: {
         Row: {
-          avatar_url: string | null
-          bio: string | null
+          active: boolean | null
+          city: string | null
+          country: string | null
           created_at: string
+          email: string
           id: string
-          investment_focus: string[] | null
-          investment_range: string | null
-          linkedin_url: string | null
+          invested_startups: number | null
+          investment_focus: string | null
+          maximum_investment: string | null
+          minimum_investment: string | null
           name: string
+          organization: string | null
+          status: string | null
+          total_investment: string | null
           updated_at: string
         }
         Insert: {
-          avatar_url?: string | null
-          bio?: string | null
+          active?: boolean | null
+          city?: string | null
+          country?: string | null
           created_at?: string
+          email: string
           id?: string
-          investment_focus?: string[] | null
-          investment_range?: string | null
-          linkedin_url?: string | null
+          invested_startups?: number | null
+          investment_focus?: string | null
+          maximum_investment?: string | null
+          minimum_investment?: string | null
           name: string
+          organization?: string | null
+          status?: string | null
+          total_investment?: string | null
           updated_at?: string
         }
         Update: {
-          avatar_url?: string | null
-          bio?: string | null
+          active?: boolean | null
+          city?: string | null
+          country?: string | null
           created_at?: string
+          email?: string
           id?: string
-          investment_focus?: string[] | null
-          investment_range?: string | null
-          linkedin_url?: string | null
+          invested_startups?: number | null
+          investment_focus?: string | null
+          maximum_investment?: string | null
+          minimum_investment?: string | null
           name?: string
+          organization?: string | null
+          status?: string | null
+          total_investment?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -99,61 +66,76 @@ export type Database = {
       profiles: {
         Row: {
           created_at: string
-          email: string
-          full_name: string | null
           id: string
-          updated_at: string
-          user_type: Database["public"]["Enums"]["user_type"]
+          role: string | null
         }
         Insert: {
           created_at?: string
-          email: string
-          full_name?: string | null
           id: string
-          updated_at?: string
-          user_type: Database["public"]["Enums"]["user_type"]
+          role?: string | null
         }
         Update: {
           created_at?: string
-          email?: string
-          full_name?: string | null
           id?: string
-          updated_at?: string
-          user_type?: Database["public"]["Enums"]["user_type"]
+          role?: string | null
         }
         Relationships: []
       }
       startups: {
         Row: {
+          business_model: string | null
+          contact_email: string | null
+          contact_phone: string | null
           created_at: string
           description: string | null
+          founded_year: number | null
           funding_stage: string | null
           id: string
           industry: string | null
-          logo_url: string | null
+          location: string | null
           name: string
+          pitch_deck: string | null
+          status: string | null
+          team_size: number | null
+          total_funding: string | null
           updated_at: string
           website: string | null
         }
         Insert: {
+          business_model?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
           created_at?: string
           description?: string | null
+          founded_year?: number | null
           funding_stage?: string | null
           id?: string
           industry?: string | null
-          logo_url?: string | null
+          location?: string | null
           name: string
+          pitch_deck?: string | null
+          status?: string | null
+          team_size?: number | null
+          total_funding?: string | null
           updated_at?: string
           website?: string | null
         }
         Update: {
+          business_model?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
           created_at?: string
           description?: string | null
+          founded_year?: number | null
           funding_stage?: string | null
           id?: string
           industry?: string | null
-          logo_url?: string | null
+          location?: string | null
           name?: string
+          pitch_deck?: string | null
+          status?: string | null
+          team_size?: number | null
+          total_funding?: string | null
           updated_at?: string
           website?: string | null
         }
@@ -162,36 +144,48 @@ export type Database = {
       tools: {
         Row: {
           category: string | null
+          contact_email: string | null
           created_at: string
           description: string | null
-          icon_url: string | null
           id: string
-          is_premium: boolean | null
+          integration_details: string | null
           name: string
+          price_model: string | null
+          status: string | null
+          tags: string[] | null
           updated_at: string
-          url: string | null
+          users: number | null
+          website: string | null
         }
         Insert: {
           category?: string | null
+          contact_email?: string | null
           created_at?: string
           description?: string | null
-          icon_url?: string | null
           id?: string
-          is_premium?: boolean | null
+          integration_details?: string | null
           name: string
+          price_model?: string | null
+          status?: string | null
+          tags?: string[] | null
           updated_at?: string
-          url?: string | null
+          users?: number | null
+          website?: string | null
         }
         Update: {
           category?: string | null
+          contact_email?: string | null
           created_at?: string
           description?: string | null
-          icon_url?: string | null
           id?: string
-          is_premium?: boolean | null
+          integration_details?: string | null
           name?: string
+          price_model?: string | null
+          status?: string | null
+          tags?: string[] | null
           updated_at?: string
-          url?: string | null
+          users?: number | null
+          website?: string | null
         }
         Relationships: []
       }
@@ -200,17 +194,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      has_role: {
-        Args: {
-          user_id: string
-          role: string
-        }
-        Returns: boolean
-      }
+      [_ in never]: never
     }
     Enums: {
-      admin_role: "admin"
-      user_type: "founder" | "investor"
+      startup_status: "idea" | "mvp" | "beta" | "live" | "acquired"
     }
     CompositeTypes: {
       [_ in never]: never

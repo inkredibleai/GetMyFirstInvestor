@@ -437,13 +437,13 @@ const Index = () => {
 
       <footer className="container mx-auto px-4 py-8 text-center text-gray-600">
         <div className="flex justify-center gap-4">
-          {/* <Button 
+          <Button 
             variant="link" 
             className="text-sm"
             onClick={() => navigate('/admin/login')}
           >
             Admin Access
-          </Button> */}
+          </Button>
         </div>
       </footer>
     </div>

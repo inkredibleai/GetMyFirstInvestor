@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
-import { LogOut, User, Users, Settings, Home, ExternalLink, Linkedin, Globe, Filter, Eye } from "lucide-react";
+import { LogOut, User, Users, Settings, Home, ExternalLink, Linkedin, Globe, Filter, Eye, BadgeCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -57,7 +57,16 @@ const InvestorDetailsModal = ({ investor, isOpen, onClose }: InvestorDetailsModa
   <Dialog open={isOpen} onOpenChange={onClose}>
     <DialogContent className="max-w-3xl">
       <DialogHeader>
-        <DialogTitle>Investor Details</DialogTitle>
+        <DialogTitle>
+          <div className="flex items-center">
+            {investor.name}
+            {investor.status === 'verified' && (
+              <div className="ml-1 bg-green-600 rounded-full p-0.5">
+                <BadgeCheck className="h-4 w-4 text-white" />
+              </div>
+            )}
+          </div>
+        </DialogTitle>
       </DialogHeader>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-4">
         <div className="space-y-4">
@@ -260,7 +269,14 @@ export default function FounderDashboard() {
             <AvatarFallback>{investor.name.charAt(0)}</AvatarFallback>
           </Avatar>
           <div>
-            <h3 className="text-lg font-semibold">{investor.name}</h3>
+            <div className="flex items-center">
+              <h3 className="text-lg font-semibold">{investor.name}</h3>
+              {investor.status === 'verified' && (
+                <div className="ml-1 bg-green-600 rounded-full p-0.5">
+                  <BadgeCheck className="h-4 w-4 text-white" />
+                </div>
+              )}
+            </div>
             {investor.organization && (
               <p className="text-sm text-gray-600">{investor.organization}</p>
             )}

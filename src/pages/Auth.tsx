@@ -16,9 +16,20 @@ export default function Auth() {
   const { toast } = useToast();
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'SIGNED_IN') {
-        navigate('/dashboard');  // Changed from '/' to '/dashboard'
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' && session?.user) {
+        // Check role and redirect accordingly
+        const { data: userData } = await supabase
+          .from('users')
+          .select('role')
+          .eq('user_id', session.user.id)
+          .single();
+
+        if (userData?.role === 'founder') {
+          navigate('/founder-dashboard');
+        } else {
+          navigate('/dashboard');
+        }
       }
     });
 
@@ -79,13 +90,13 @@ export default function Auth() {
       const { data: userData, error: userError } = await supabase
         .from('users')
         .select('role')
-        .eq('user_id', user.id)  // Use user.id directly from the signIn response
+        .eq('user_id', user.id)
         .single();
 
       if (userError) throw userError;
 
-      // Redirect based on role
-      if (userData && userData.role === 'founder') {
+      // Redirect based on role immediately
+      if (userData?.role === 'founder') {
         navigate("/founder-dashboard");
       } else {
         navigate("/dashboard");

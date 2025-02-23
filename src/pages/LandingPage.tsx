@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Check, ChevronRight, Users, BarChart, Rocket, Shield, Mail, 
-  Globe, Zap, Target, TrendingUp, MessageSquare, Award } from "lucide-react";
+  Globe, Zap, Target, TrendingUp, MessageSquare, Award, Building2, GraduationCap } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import Navbar from "@/components/Navbar";
@@ -10,60 +10,61 @@ const LandingPage = () => {
 
   const pricingTiers = [
     {
-      name: "Starter",
+      name: "Ideation",
       price: "Free",
       features: [
-        "Basic investor directory access",
-        "Limited startup listing",
-        "Access to basic tools",
+        "Basic mentor matching",
+        "Idea validation tools",
+        "Access to startup templates",
+        "Community access",
       ],
     },
     {
-      name: "Pro",
+      name: "MVP Builder",
       price: "₹999",
       features: [
-        "Full investor directory access",
-        "Detailed investor profiles",
-        "Premium startup listing",
-        "Access to all tools",
-        "Direct messaging",
+        "Everything in Ideation",
+        "1:1 Mentor sessions",
+        "Technical consultation",
+        "MVP development guidance",
+        "Investor pitch preparation",
       ],
     },
     {
-      name: "Pro+",
+      name: "Growth",
       price: "₹2999",
       features: [
-        "Everything in Pro",
-        "Priority support",
-        "Featured startup listing",
-        "Advanced analytics",
-        "Investor matching alerts",
+        "Everything in MVP Builder",
+        "Priority investor matching",
+        "Technical co-founder matching",
+        "Due diligence support",
+        "Funding readiness toolkit",
       ],
     },
   ];
 
   const stats = [
-    { number: "500+", label: "Active Investors" },
-    { number: "₹100Cr+", label: "Total Investments" },
-    { number: "1000+", label: "Startups Listed" },
-    { number: "200+", label: "Successful Deals" },
+    { number: "200+", label: "Expert Mentors" },
+    { number: "₹10Cr+", label: "Funding Facilitated" },
+    { number: "500+", label: "Idea-Stage Startups" },
+    { number: "100+", label: "Successful MVPs" },
   ];
 
   const features = [
     {
       icon: Users,
-      title: "Verified Investors",
-      description: "Connect with pre-verified angel investors actively looking for opportunities.",
+      title: "Expert Mentorship",
+      description: "Connect with industry veterans who guide you from idea to execution.",
     },
     {
       icon: BarChart,
-      title: "Deal Analytics",
-      description: "Get insights into investment trends and startup valuations.",
+      title: "Seed Funding",
+      description: "Access funding from ₹50K to ₹10 LPA for your early-stage startup.",
     },
     {
-      icon: BarChart,
-      title: "Startup Tools",
-      description: "Access essential tools for startup growth and management.",
+      icon: Rocket,
+      title: "MVP Development",
+      description: "Get technical support and resources to build your first product.",
     },
   ];
 
@@ -123,12 +124,13 @@ const LandingPage = () => {
           className="container mx-auto text-center px-4 relative z-10 pt-16"
         >
           <h1 className="text-6xl font-bold mb-6 leading-tight">
-            Your First Step Towards <br />
-            Startup Success
+            Turn Your Idea Into<br />
+            A Successful Startup
           </h1>
           <p className="text-xl mb-8 max-w-2xl mx-auto">
-            Get connected with your first angel investor. We make fundraising simple,
-            transparent, and accessible for early-stage startups.
+            From ideation to MVP, we connect early-stage founders with expert mentors
+            and seed funding (₹50K - ₹10 LPA). Get the guidance and resources you
+            need to build your dream startup.
           </p>
           <div className="flex gap-4 justify-center">
             <Button
@@ -142,7 +144,7 @@ const LandingPage = () => {
             <Button
               size="lg"
               variant="outline"
-              className="border-white text-black hover:bg-white/10"
+              className="border-white text-white hover:bg-white/10"
             >
               Watch Demo
             </Button>
@@ -217,6 +219,56 @@ const LandingPage = () => {
           </div>
         </div>
       </section>
+
+<section className="py-20 bg-white">
+  <div className="container mx-auto px-4">
+    <div className="text-center mb-16">
+      <h2 className="text-4xl font-bold mb-4">Complete Startup Support System</h2>
+      <p className="text-xl text-gray-600">Everything you need to go from idea to funded startup</p>
+    </div>
+    
+    <div className="grid md:grid-cols-3 gap-8">
+      {/* Mentors Section */}
+      <motion.div
+        whileHover={{ scale: 1.05 }}
+        className="bg-white p-8 rounded-xl shadow-lg"
+      >
+        <Users className="w-12 h-12 text-purple-600 mb-4" />
+        <h3 className="text-2xl font-bold mb-4">1:1 Mentorship</h3>
+        <p className="text-gray-600 mb-4">
+          Get personalized guidance from experienced founders and industry experts
+        </p>
+        <Button variant="outline">Meet Mentors</Button>
+      </motion.div>
+
+      {/* Investors Section */}
+      <motion.div
+        whileHover={{ scale: 1.05 }}
+        className="bg-white p-8 rounded-xl shadow-lg"
+      >
+        <Building2 className="w-12 h-12 text-purple-600 mb-4" />
+        <h3 className="text-2xl font-bold mb-4">Seed Funding</h3>
+        <p className="text-gray-600 mb-4">
+          Access early-stage funding from ₹50K to ₹10 LPA to kickstart your journey
+        </p>
+        <Button variant="outline">View Opportunities</Button>
+      </motion.div>
+
+      {/* Incubators Section */}
+      <motion.div
+        whileHover={{ scale: 1.05 }}
+        className="bg-white p-8 rounded-xl shadow-lg"
+      >
+        <Rocket className="w-12 h-12 text-purple-600 mb-4" />
+        <h3 className="text-2xl font-bold mb-4">MVP Development</h3>
+        <p className="text-gray-600 mb-4">
+          Technical guidance and resources to build your first product
+        </p>
+        <Button variant="outline">Start Building</Button>
+      </motion.div>
+    </div>
+  </div>
+</section>
 
       {/* Add id attributes to sections for navigation */}
       <section id="how-it-works" className="py-20 bg-gray-50">
@@ -379,6 +431,38 @@ const LandingPage = () => {
         </div>
       </section>
 
+      {/* Featured Startups Section */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-4">
+          <h2 className="text-4xl font-bold text-center mb-8">Featured Startups</h2>
+          <div className="grid md:grid-cols-3 gap-8">
+            {/* Example Startup Card */}
+            <div className="bg-gray-100 p-6 rounded-lg shadow-lg">
+              <h3 className="text-2xl font-bold mb-2">Startup Name</h3>
+              <p className="text-gray-600 mb-4">Brief description of the startup.</p>
+              <Button onClick={() => navigate("/startup-details")} className="w-full">View Details</Button>
+            </div>
+            {/* Add more startup cards as needed */}
+          </div>
+        </div>
+      </section>
+
+      {/* Featured Startups Section */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-4">
+          <h2 className="text-4xl font-bold text-center mb-8">Featured Startups</h2>
+          <div className="grid md:grid-cols-3 gap-8">
+            {/* Example Startup Card */}
+            <div className="bg-gray-100 p-6 rounded-lg shadow-lg">
+              <h3 className="text-2xl font-bold mb-2">Startup Name</h3>
+              <p className="text-gray-600 mb-4">Brief description of the startup.</p>
+              <Button onClick={() => navigate("/startup-details")} className="w-full">View Details</Button>
+            </div>
+            {/* Add more startup cards as needed */}
+          </div>
+        </div>
+      </section>
+
       {/* Enhanced CTA Section */}
       <section className="py-20 bg-gradient-to-r from-violet-600 via-purple-600 to-blue-600 text-white relative overflow-hidden">
         <div className="container mx-auto px-4 text-center relative z-10">
@@ -387,21 +471,28 @@ const LandingPage = () => {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-         
-            <h2 className="text-4xl font-bold mb-8">Ready to Transform Your Startup Journey?</h2>
-            <p className="text-xl mb-12 max-w-2xl mx-auto">
-              Join the next generation of successful startups and connect with leading investors.
-            </p>
-            <div className="flex gap-4 justify-center">
-              <Button
-                size="lg"
-                onClick={() => navigate("/auth")}
-                className="glass-morphism hover:neon-glow transition-all duration-300"
-              >
-                Get Started Now
-                <ArrowRight className="ml-2" />
-              </Button>
-            </div>
+          <h2 className="text-4xl font-bold mb-8">Ready to Build Your Startup?</h2>
+          <p className="text-xl mb-12 max-w-2xl mx-auto">
+            Join hundreds of founders who've gone from idea to funded startup with
+            our mentorship and support system.
+          </p>
+          <div className="flex gap-4 justify-center">
+            <Button
+              size="lg"
+              onClick={() => navigate("/auth")}
+              className="glass-morphism hover:neon-glow transition-all duration-300"
+            >
+              Get Started Now
+              <ArrowRight className="ml-2" />
+            </Button>
+            <Button
+              size="lg"
+              variant="outline"
+              className="border-white text-white hover:bg-white/10"
+            >
+              Schedule Demo
+            </Button>
+          </div>
           </motion.div>
         
         {/* Add animated background elements */}

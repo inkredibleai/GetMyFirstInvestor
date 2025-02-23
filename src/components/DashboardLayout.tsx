@@ -1,15 +1,21 @@
-
 import { useState, useEffect } from "react";
 import { SidebarProvider, Sidebar, SidebarContent, SidebarTrigger } from "@/components/ui/sidebar";
-import { BarChart3, Users, Briefcase, Settings, LogOut } from "lucide-react";
+import { BarChart3, Users, Briefcase, Settings, LogOut, BookOpen, Building2, FileText, GraduationCap } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import { useQuery } from "@tanstack/react-query";
 
 const menuItems = [
   { icon: BarChart3, label: "Overview", path: "/" },
   { icon: Users, label: "Investors", path: "/investors" },
   { icon: Briefcase, label: "Startups", path: "/startups" },
+  // { icon: Briefcase, label: "Upcoming Startups", path: "/upcoming-startups" },
+  { icon: Users, label: "Mentors", path: "/mentors" },
+  // { icon: Building2, label: "Incubators", path: "/incubators" },
+  // { icon: GraduationCap, label: "Workshops & Events", path: "/events" },
+  // { icon: FileText, label: "Govt. Schemes", path: "/schemes" },
+  // { icon: BookOpen, label: "Blogs", path: "/blogs" },
   { icon: Settings, label: "Tools", path: "/tools" },
 ];
 
@@ -32,6 +38,31 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
       });
     }
   };
+
+  // Add query for mentor sessions
+  const { data: sessionStats } = useQuery({
+    queryKey: ['mentorSessionStats'],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return { total: 0, upcoming: 0 };
+
+      const { data: sessions } = await supabase
+        .from('mentor_sessions')
+        .select('*')
+        .eq('founder_id', user.id);
+
+      const now = new Date();
+      const upcoming = sessions?.filter(session => 
+        new Date(session.session_date) > now && 
+        session.status !== 'cancelled'
+      ).length || 0;
+
+      return {
+        total: sessions?.length || 0,
+        upcoming
+      };
+    }
+  });
 
   return (
     <SidebarProvider>
@@ -57,6 +88,26 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
                 </Link>
               ))}
             </nav>
+            
+            {/* Add session stats */}
+            {sessionStats && (
+              <div className="px-4 py-3 mt-4">
+                <div className="bg-purple-50 rounded-lg p-4">
+                  <h3 className="text-sm font-medium text-purple-800 mb-2">Mentor Sessions</h3>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="text-center">
+                      <p className="text-2xl font-bold text-purple-600">{sessionStats.total}</p>
+                      <p className="text-xs text-purple-800">Total</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-2xl font-bold text-purple-600">{sessionStats.upcoming}</p>
+                      <p className="text-xs text-purple-800">Upcoming</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+            
           </SidebarContent>
           <div className="absolute bottom-4 left-0 right-0 px-4">
             <button 

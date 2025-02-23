@@ -14,8 +14,8 @@ import { useEffect, useState } from "react";
 import { supabase } from "./integrations/supabase/client";
 import { Session } from "@supabase/supabase-js";
 import LandingPage from "./pages/LandingPage";
-// import Dashboard from './pages/Dashboard';
 import FounderDashboard from './pages/FounderDashboard';
+import MentorsPage from "./pages/MentorsPage";
 
 const queryClient = new QueryClient();
 
@@ -128,6 +128,7 @@ const App = () => (
           />
           <Route path="/auth" element={<Auth />} />
           <Route path="/founder-dashboard" element={<FounderDashboard />} />
+          <Route path="/mentors" element={<MentorsPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

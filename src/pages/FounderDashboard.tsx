@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
-import { LogOut, User, Users, Settings, Home, ExternalLink, Linkedin, Globe, Filter, Eye, BadgeCheck } from "lucide-react";
+import { LogOut, User, Users, Settings, Home, ExternalLink, Linkedin, Globe, Filter, Eye, BadgeCheck, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -17,6 +17,24 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { MentorSession } from "@/types/mentorSession";
+
+interface Mentor {
+  id: string;
+  name: string;
+  email: string | null;
+  expertise: string;
+  years_of_experience: number;
+  industry: string | null;
+  city: string | null;
+  country: string | null;
+  status: string;
+  availability: string | null;
+  avatar: string | null;
+  active: boolean;
+  timeSlots?: any[];
+}
 
 interface Investor {
   id: string;
@@ -167,20 +185,28 @@ const InvestorDetailsModal = ({ investor, isOpen, onClose }: InvestorDetailsModa
 export default function FounderDashboard() {
   const [investors, setInvestors] = useState<Investor[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('investors');
-  const [profile, setProfile] = useState<FounderProfile | null>(null);
+  type TabType = 'investors' | 'profile' | 'mentors';
+  const [activeTab, setActiveTab] = useState<TabType>('investors');
   const navigate = useNavigate();
+  const [profile, setProfile] = useState<FounderProfile | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'verified'>('all');
   const [sortBy, setSortBy] = useState<keyof Investor>('name');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [selectedInvestor, setSelectedInvestor] = useState<Investor | null>(null);
+  const [mentors, setMentors] = useState<Mentor[]>([]);
+  const [mentorSessions, setMentorSessions] = useState<MentorSession[]>([]);
+  const [selectedMentor, setSelectedMentor] = useState<Mentor | null>(null);
+  const [showBookingModal, setShowBookingModal] = useState(false);
 
   useEffect(() => {
     checkUserRole();
     fetchFounderProfile();
     if (activeTab === 'investors') {
       fetchInvestors();
+    }
+    if (activeTab === 'mentors') {
+      fetchMentorsWithSlots();
     }
   }, [activeTab]);
 
@@ -235,6 +261,35 @@ export default function FounderDashboard() {
       console.error('Error fetching investors:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchMentorsWithSlots = async () => {
+    try {
+      const { data: mentorsData } = await supabase
+        .from('mentors')
+        .select('*')
+        .eq('active', true);
+
+      if (mentorsData) {
+        // Fetch time slots for each mentor
+        const mentorsWithSlots = await Promise.all(
+          mentorsData.map(async (mentor) => {
+            const { data: slots } = await supabase
+              .from('mentor_availability')
+              .select('*')
+              .eq('mentor_id', mentor.id);
+            
+            return {
+              ...mentor,
+              timeSlots: slots || []
+            };
+          })
+        );
+        setMentors(mentorsWithSlots);
+      }
+    } catch (error) {
+      console.error('Error fetching mentors:', error);
     }
   };
 
@@ -358,6 +413,77 @@ export default function FounderDashboard() {
     </div>
   );
 
+  const renderMentorCard = (mentor: Mentor) => (
+    <div key={mentor.id} className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+      <div className="flex items-start justify-between">
+        <div className="flex items-center space-x-4">
+          <Avatar className="h-12 w-12">
+            <AvatarImage src={mentor.avatar || undefined} />
+            <AvatarFallback>{mentor.name.charAt(0)}</AvatarFallback>
+          </Avatar>
+          <div>
+            <div className="flex items-center">
+              <h3 className="text-lg font-semibold">{mentor.name}</h3>
+              {mentor.status === 'verified' && (
+                <div className="ml-1 bg-green-600 rounded-full p-0.5">
+                  <BadgeCheck className="h-4 w-4 text-white" />
+                </div>
+              )}
+            </div>
+            <p className="text-sm text-gray-600">{mentor.expertise}</p>
+          </div>
+        </div>
+        <div className="flex space-x-2">
+          {/* ... social links ... */}
+        </div>
+      </div>
+
+      <div className="mt-4 grid grid-cols-2 gap-4">
+        <div>
+          <p className="text-sm text-gray-500">Experience</p>
+          <p className="text-sm font-medium">{mentor.years_of_experience} years</p>
+        </div>
+        <div>
+          <p className="text-sm text-gray-500">Industry</p>
+          <p className="text-sm font-medium">{mentor.industry || 'Not specified'}</p>
+        </div>
+        <div>
+          <p className="text-sm text-gray-500">Location</p>
+          <p className="text-sm font-medium">
+            {mentor.city && mentor.country ? `${mentor.city}, ${mentor.country}` : 'Not specified'}
+          </p>
+        </div>
+        <div>
+          <p className="text-sm text-gray-500">Availability</p>
+          <p className="text-sm font-medium">{mentor.availability || 'Not specified'}</p>
+        </div>
+      </div>
+
+      <div className="mt-4 flex justify-between items-center">
+        <span className={`px-2 py-1 text-xs rounded-full ${
+          mentor.status === 'verified' 
+            ? 'bg-green-100 text-green-800' 
+            : 'bg-yellow-100 text-yellow-800'
+        }`}>
+          {mentor.status}
+        </span>
+        <div className="flex space-x-2">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => {
+              setSelectedMentor(mentor);
+              setShowBookingModal(true);
+            }}
+          >
+            <Calendar className="h-4 w-4 mr-1" />
+            Book Session
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+
   const renderInvestorsContent = () => (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -438,6 +564,25 @@ export default function FounderDashboard() {
       case 'investors':
         return renderInvestorsContent();
 
+      case 'mentors':
+        return (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div className="flex-1 max-w-sm">
+                <Input
+                  placeholder="Search mentors..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {mentors.map(renderMentorCard)}
+            </div>
+          </div>
+        );
+
       default:
         return null;
     }
@@ -461,6 +606,12 @@ export default function FounderDashboard() {
                 activeTab === 'investors' ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50'
               }`}
               onClick={() => setActiveTab('investors')}
+            ></div>
+            <div
+              className={`flex items-center px-6 py-3 cursor-pointer ${
+                activeTab === 'investors' ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50'
+              }`}
+              onClick={() => setActiveTab('investors')}
             >
               <Users className="w-5 h-5 mr-3" />
               <span>Investors</span>
@@ -473,6 +624,15 @@ export default function FounderDashboard() {
             >
               <User className="w-5 h-5 mr-3" />
               <span>Profile</span>
+            </div>
+            <div
+              className={`flex items-center px-6 py-3 cursor-pointer ${
+                activeTab === 'mentors' ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50'
+              }`}
+              onClick={() => setActiveTab('mentors')}
+            >
+              <User className="w-5 h-5 mr-3" />
+              <span>Mentors</span>
             </div>
             <div
               className="flex items-center px-6 py-3 text-gray-600 hover:bg-gray-50 cursor-pointer mt-auto"
@@ -502,4 +662,4 @@ export default function FounderDashboard() {
       )}
     </>
   );
-} 
+}

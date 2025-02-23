@@ -312,140 +312,144 @@ export const Investors = () => {
         </div>
       </div>
 
-      {/* Table Section */}
-      <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
-        <ScrollArea className="h-[calc(100vh-18rem)]">
-          {isLoading ? (
-            <div className="flex items-center justify-center h-64">
-              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-600"></div>
-            </div>
-          ) : filteredInvestors.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-64 bg-gray-50">
-              <Search className="h-12 w-12 text-gray-400 mb-4" />
-              <p className="text-lg font-medium text-gray-900">No investors found</p>
-              <p className="text-sm text-gray-500">Try adjusting your search terms</p>
-            </div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-gray-50 hover:bg-gray-50">
-                  <TableHead className="w-[50px]">Avatar</TableHead>
-                  <TableHead className="min-w-[150px]">Name</TableHead>
-                  <TableHead className="min-w-[200px]">Email</TableHead>
-                  <TableHead className="min-w-[150px]">Organization</TableHead>
-                  <TableHead className="min-w-[120px]">Total Investment</TableHead>
-                  <TableHead className="min-w-[150px]">Investment Focus</TableHead>
-                  <TableHead className="min-w-[100px]">Website</TableHead>
-                  <TableHead className="min-w-[100px]">LinkedIn</TableHead>
-                  <TableHead className="min-w-[120px]">Invested Startups</TableHead>
-                  <TableHead className="min-w-[150px]">Min-Max Investment</TableHead>
-                  <TableHead className="min-w-[150px]">Location</TableHead>
-                  <TableHead className="min-w-[100px]">Status</TableHead>
-                  <TableHead className="min-w-[80px]">Active</TableHead>
-                  <TableHead className="w-[70px]"></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredInvestors.map((investor) => (
-                  <TableRow 
-                    key={investor.id}
-                    className="hover:bg-gray-50/50 transition-colors border-gray-100"
-                  >
-                    <TableCell className="py-3">
-                      {investor.avatar ? (
-                        <img 
-                          src={investor.avatar} 
-                          alt={investor.name} 
-                          className="w-10 h-10 rounded-full object-cover border-2 border-gray-100"
-                        />
-                      ) : (
-                        <div className={`w-10 h-10 rounded-full ${getInitialsColor(investor.name).bg} ${getInitialsColor(investor.name).text} flex items-center justify-center font-medium border-2 ${getInitialsColor(investor.name).border}`}>
-                          {investor.name.charAt(0).toUpperCase()}
-                        </div>
-                      )}
-                    </TableCell>
-                    <TableCell className="font-medium text-gray-900">{investor.name}</TableCell>
-                    <TableCell className="text-gray-600">{investor.email}</TableCell>
-                    <TableCell className="text-gray-600 font-medium">{investor.organization}</TableCell>
-                    <TableCell className="font-medium text-green-600">{investor.total_investment}</TableCell>
-                    <TableCell>
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700">
-                        {investor.investment_focus}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      {investor.website && (
-                        <a 
-                          href={investor.website} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="text-blue-600 hover:underline"
-                        >
-                          Visit
-                        </a>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {investor.linkedin_url && (
-                        <a 
-                          href={investor.linkedin_url} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="text-blue-600 hover:underline"
-                        >
-                          Profile
-                        </a>
-                      )}
-                    </TableCell>
-                    <TableCell>{investor.invested_startups}</TableCell>
-                    <TableCell>{`${investor.minimum_investment} - ${investor.maximum_investment}`}</TableCell>
-                    <TableCell>{`${investor.city || ''}, ${investor.country || ''}`}</TableCell>
-                    <TableCell>
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        investor.status === "verified" 
-                          ? "bg-green-50 text-green-700" 
-                          : "bg-yellow-50 text-yellow-700"
-                      }`}>
-                        {investor.status}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        investor.active 
-                          ? "bg-green-50 text-green-700" 
-                          : "bg-red-50 text-red-700"
-                      }`}>
-                        {investor.active ? "Active" : "Inactive"}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => handleEditClick(investor)}>
-                            <Pencil className="h-4 w-4 mr-2" />
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem 
-                            className="text-red-600"
-                            onClick={() => handleDelete(investor.id)}
-                          >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-        </ScrollArea>
+      {/* Update Table Section with proper scrolling */}
+      <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
+        <div className="relative h-[calc(100vh-18rem)]">
+          <div className="absolute inset-0 overflow-auto">
+            {isLoading ? (
+              <div className="flex items-center justify-center h-64">
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-600"></div>
+              </div>
+            ) : filteredInvestors.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-64 bg-gray-50">
+                <Search className="h-12 w-12 text-gray-400 mb-4" />
+                <p className="text-lg font-medium text-gray-900">No investors found</p>
+                <p className="text-sm text-gray-500">Try adjusting your search terms</p>
+              </div>
+            ) : (
+              <div className="min-w-[1600px]">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-gray-50 hover:bg-gray-50">
+                      <TableHead className="w-[50px]">Avatar</TableHead>
+                      <TableHead className="min-w-[150px]">Name</TableHead>
+                      <TableHead className="min-w-[200px]">Email</TableHead>
+                      <TableHead className="min-w-[150px]">Organization</TableHead>
+                      <TableHead className="min-w-[120px]">Total Investment</TableHead>
+                      <TableHead className="min-w-[150px]">Investment Focus</TableHead>
+                      <TableHead className="min-w-[100px]">Website</TableHead>
+                      <TableHead className="min-w-[100px]">LinkedIn</TableHead>
+                      <TableHead className="min-w-[120px]">Invested Startups</TableHead>
+                      <TableHead className="min-w-[150px]">Min-Max Investment</TableHead>
+                      <TableHead className="min-w-[150px]">Location</TableHead>
+                      <TableHead className="min-w-[100px]">Status</TableHead>
+                      <TableHead className="min-w-[80px]">Active</TableHead>
+                      <TableHead className="w-[70px]"></TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredInvestors.map((investor) => (
+                      <TableRow 
+                        key={investor.id}
+                        className="hover:bg-gray-50/50 transition-colors border-gray-100"
+                      >
+                        <TableCell className="py-3">
+                          {investor.avatar ? (
+                            <img 
+                              src={investor.avatar} 
+                              alt={investor.name} 
+                              className="w-10 h-10 rounded-full object-cover border-2 border-gray-100"
+                            />
+                          ) : (
+                            <div className={`w-10 h-10 rounded-full ${getInitialsColor(investor.name).bg} ${getInitialsColor(investor.name).text} flex items-center justify-center font-medium border-2 ${getInitialsColor(investor.name).border}`}>
+                              {investor.name.charAt(0).toUpperCase()}
+                            </div>
+                          )}
+                        </TableCell>
+                        <TableCell className="font-medium text-gray-900">{investor.name}</TableCell>
+                        <TableCell className="text-gray-600">{investor.email}</TableCell>
+                        <TableCell className="text-gray-600 font-medium">{investor.organization}</TableCell>
+                        <TableCell className="font-medium text-green-600">{investor.total_investment}</TableCell>
+                        <TableCell>
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700">
+                            {investor.investment_focus}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          {investor.website && (
+                            <a 
+                              href={investor.website} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:underline"
+                            >
+                              Visit
+                            </a>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {investor.linkedin_url && (
+                            <a 
+                              href={investor.linkedin_url} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:underline"
+                            >
+                              Profile
+                            </a>
+                          )}
+                        </TableCell>
+                        <TableCell>{investor.invested_startups}</TableCell>
+                        <TableCell>{`${investor.minimum_investment} - ${investor.maximum_investment}`}</TableCell>
+                        <TableCell>{`${investor.city || ''}, ${investor.country || ''}`}</TableCell>
+                        <TableCell>
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            investor.status === "verified" 
+                              ? "bg-green-50 text-green-700" 
+                              : "bg-yellow-50 text-yellow-700"
+                          }`}>
+                            {investor.status}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            investor.active 
+                              ? "bg-green-50 text-green-700" 
+                              : "bg-red-50 text-red-700"
+                          }`}>
+                            {investor.active ? "Active" : "Inactive"}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" className="h-8 w-8 p-0">
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => handleEditClick(investor)}>
+                                <Pencil className="h-4 w-4 mr-2" />
+                                Edit
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                className="text-red-600"
+                                onClick={() => handleDelete(investor.id)}
+                              >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="max-w-3xl">

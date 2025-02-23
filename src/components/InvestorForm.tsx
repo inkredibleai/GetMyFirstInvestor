@@ -227,3 +227,4 @@ export const InvestorForm = ({ investor, onSuccess }: InvestorFormProps) => {
     </form>
   );
 };
+ 

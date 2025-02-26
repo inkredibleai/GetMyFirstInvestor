@@ -97,44 +97,66 @@ export const Investors = () => {
     };
   }, [investors]);
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+  const validateInvestorData = (data: any) => {
+    const requiredFields = ['name', 'email'];
+    const errors: string[] = [];
 
-    Papa.parse(file, {
-      complete: (result) => {
-        setPreviewData(result.data);
-        setShowPreview(true);
-      },
-      header: true,
+    data.forEach((row: any, index: number) => {
+      requiredFields.forEach(field => {
+        if (!row[field]) {
+          errors.push(`Row ${index + 1}: Missing required field '${field}'`);
+        }
+      });
     });
+
+    return errors;
   };
 
   const handleBulkUpload = async () => {
     try {
-      // Validate and transform the data before upload
-      const transformedData = previewData.map(row => ({
-        ...row,
+      if (!previewData.length) {
+        throw new Error("No data to upload");
+      }
+
+      // Transform the data
+      const transformedData = previewData.map((row: any) => ({
+        name: row.name?.toString().trim(),
+        email: row.email?.toString().trim(),
+        organization: row.organization?.toString().trim() || null,
+        total_investment: row.total_investment?.toString().trim() || null,
         invested_startups: parseInt(row.invested_startups) || 0,
-        active: row.active === 'true' || row.active === true,
-        status: row.status || 'pending'
+        investment_focus: row.investment_focus?.toString().trim() || null,
+        city: row.city?.toString().trim() || null,
+        country: row.country?.toString().trim() || null,
+        minimum_investment: row.minimum_investment?.toString().trim() || null,
+        maximum_investment: row.maximum_investment?.toString().trim() || null,
+        website: row.website?.toString().trim() || null,
+        linkedin_url: row.linkedin_url?.toString().trim() || null,
+        avatar: row.avatar?.toString().trim() || null,
+        active: true,
+        status: 'pending'
       }));
 
-      const { error } = await supabase
+      console.log('Transformed data:', transformedData); // Debug log
+
+      const { data, error } = await supabase
         .from('investors')
-        .insert(transformedData);
+        .insert(transformedData)
+        .select();
 
       if (error) throw error;
 
       toast({
         title: "Success",
-        description: "Investors uploaded successfully",
+        description: `${transformedData.length} investors uploaded successfully`,
       });
-      
+
       queryClient.invalidateQueries({ queryKey: ['investors'] });
       setShowPreview(false);
       setPreviewData([]);
+
     } catch (error: any) {
+      console.error('Upload error:', error); // Debug log
       toast({
         variant: "destructive",
         title: "Error",
@@ -143,34 +165,79 @@ export const Investors = () => {
     }
   };
 
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Read the file using FileReader
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        Papa.parse(e.target?.result as string, {
+          header: true,
+          skipEmptyLines: true,
+          complete: (results) => {
+            if (results.data && results.data.length > 0) {
+              console.log('Parsed data:', results.data); // Debug log
+              setPreviewData(results.data);
+              setShowPreview(true);
+            } else {
+              toast({
+                variant: "destructive",
+                title: "Error",
+                description: "No valid data found in CSV file",
+              });
+            }
+          },
+          error: (error) => {
+            toast({
+              variant: "destructive",
+              title: "Error",
+              description: `Error parsing CSV: ${error.message}`,
+            });
+          }
+        });
+      } catch (error: any) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: error.message,
+        });
+      }
+    };
+    reader.readAsText(file);
+  };
+
   const downloadTemplate = () => {
     const template = [
       {
         name: "John Doe",
         email: "john@example.com",
         organization: "Example VC",
-        total_investment: "$5M",
-        invested_startups: 10,
+        total_investment: "5M",
+        invested_startups: "10",
         investment_focus: "Tech, Healthcare",
         website: "https://example.com",
         linkedin_url: "https://linkedin.com/in/johndoe",
         city: "San Francisco",
         country: "USA",
-        minimum_investment: "$100K",
-        maximum_investment: "$1M",
+        minimum_investment: "100K",
+        maximum_investment: "1M",
         status: "pending",
-        active: true,
-        avatar: "https://example.com/avatar.jpg"
+        active: "true",
+        avatar: ""
       }
     ];
 
     const csv = Papa.unparse(template);
-    const blob = new Blob([csv], { type: 'text/csv' });
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'investors_template.csv';
-    a.click();
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'investors_template.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const handleDelete = async (id: string) => {
@@ -468,6 +535,45 @@ export const Investors = () => {
           />
         </DialogContent>
       </Dialog>
+      {showPreview && previewData.length > 0 && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-4xl w-full max-h-[90vh] overflow-hidden">
+            <h2 className="text-2xl font-bold mb-4">Preview Data</h2>
+            <div className="overflow-auto max-h-[60vh]">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    {Object.keys(previewData[0]).map((header) => (
+                      <th key={header} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        {header}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {previewData.map((row, index) => (
+                    <tr key={index}>
+                      {Object.values(row).map((value: any, i) => (
+                        <td key={i} className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {value?.toString() || ''}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="mt-4 flex justify-end space-x-3">
+              <Button variant="outline" onClick={() => setShowPreview(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleBulkUpload}>
+                Confirm Upload
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

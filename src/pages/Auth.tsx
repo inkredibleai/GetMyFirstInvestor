@@ -79,33 +79,39 @@ export default function Auth() {
     setLoading(true);
     
     try {
-      const { data: { user }, error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (error) throw error;
-      
-      // Check user role in the users table
-      const { data: userData, error: userError } = await supabase
-        .from('users')
-        .select('role')
-        .eq('user_id', user.id)
-        .single();
+      if (error) {
+        throw error;
+      }
 
-      if (userError) throw userError;
+      if (data.user) {
+        // Check user role in the users table
+        const { data: userData, error: userError } = await supabase
+          .from('users')
+          .select('role')
+          .eq('user_id', data.user.id)
+          .single();
 
-      // Redirect based on role immediately
-      if (userData?.role === 'founder') {
-        navigate("/founder-dashboard");
-      } else {
-        navigate("/dashboard");
+        if (userError) {
+          throw userError;
+        }
+
+        // Redirect based on role
+        if (userData?.role === 'founder') {
+          navigate("/founder-dashboard");
+        } else {
+          navigate("/dashboard");
+        }
       }
     } catch (error: any) {
       toast({
         variant: "destructive",
         title: "Error",
-        description: error.message,
+        description: error.message || "Failed to log in. Please try again.",
       });
     } finally {
       setLoading(false);
